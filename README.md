@@ -15,3 +15,6 @@ The combination that I prefer to use is Visual Studio and Windows. However, I us
 - Use the main file from [here](https://www.glfw.org/documentation.html)
 - In order to use GLEW, make sure to import glew before other OpenGL-related libraries
 - First you need to create a valid OpenGL rendering context (e.g., `glfwMakeContextCurrent(window);`) and then call glewInit() to initialize the extension entry points
+
+## Reference
+- [OpenGL official documentation](https://docs.gl/)
