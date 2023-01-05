@@ -6,6 +6,23 @@
 #include <sstream>
 #include <string>
 
+#define ASSERT(x) if (!x) __debugbreak();
+#define GLCall(x) GLClearError();\
+                  x;\
+                  ASSERT(GLLogCALL(#x, __FILE__, __LINE__));
+
+static void GLClearError() {
+    while (glGetError() != GL_NO_ERROR);
+}
+
+static bool GLLogCALL(const char* function, const char* file, int line) {
+    while (GLenum error = glGetError()) {
+        std::cout << "GL Error : " << error << " " << function << " " << file << " : " << line << "\n";
+        return false;
+    }
+    return true;
+}
+
 struct ShaderProgramSource{
     std::string VertexSource;
     std::string FragmentSource;
@@ -123,34 +140,33 @@ int main(void)
 
     // vertex buffer
     unsigned int buffer;
-    glGenBuffers(1, &buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, 6 * 2 * sizeof(float), positions, GL_STATIC_DRAW);
+    GLCall(glGenBuffers(1, &buffer))
+    GLCall(glBindBuffer(GL_ARRAY_BUFFER, buffer))
+    GLCall(glBufferData(GL_ARRAY_BUFFER, 6 * 2 * sizeof(float), positions, GL_STATIC_DRAW))
 
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
+    GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0))
     //enable vertex attribute pointer
-    glEnableVertexAttribArray(0);
+    GLCall(glEnableVertexAttribArray(0))
 
     // index buffer
     unsigned int ibuffer;
-    glGenBuffers(1, &ibuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW);
+    GLCall(glGenBuffers(1, &ibuffer))
+    GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibuffer))
+    GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW))
 
     // create shaders
     ShaderProgramSource source(ParseShader("res/shaders/Basic.shader"));
     unsigned int shader = CreateShader(source.VertexSource, source.FragmentSource);
-    glUseProgram(shader);
+    GLCall(glUseProgram(shader))
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
         /* Render here */
-        glClear(GL_COLOR_BUFFER_BIT);
+        GLCall(glClear(GL_COLOR_BUFFER_BIT))
 
         // draw a simple triangle
-        // glDrawArrays(GL_TRIANGLES, 0, 6);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+        GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr))
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
